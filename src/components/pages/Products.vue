@@ -59,7 +59,7 @@
                                         <i class="fas fa-spinner fa-spin"></i>
                                     </label>
                                     <input type="file" id="customFile" class="form-control"
-                                           ref="files">
+                                           ref="files" @change="uploadFile">
                                 </div>
                                 <img class="img-fluid" :src="tempProduct.imageUrl" alt="">
                             </div>
@@ -191,6 +191,25 @@
                         console.log('Create failed')
                     }
                     vm.getProducts()
+                })
+            },
+            uploadFile: function () {
+                console.log(this)
+                const uploadedFile = this.$refs.files.files[0]
+                const vm = this
+
+                const formData = new FormData()
+                formData.append('file-to-upload', uploadedFile)
+
+                const url = `${process.env.API_PATH}/api/${process.env.CUSTOM_PATH}/admin/upload`
+                this.$http.post(url, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }).then(response => {
+                    if (response.data.success) {
+                        vm.$set(vm.tempProduct, 'imageUrl', response.data.imageUrl)
+                    }
                 })
             }
         },
