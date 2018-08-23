@@ -1,5 +1,6 @@
 <template>
     <div>
+        <loading :active.sync="isLoading"></loading>
         <div class="text-right mt-4">
             <button class="btn btn-primary" @click="openModal(true)">Create Product</button>
         </div>
@@ -56,7 +57,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="customFile">或 上傳圖片
-                                        <i class="fas fa-spinner fa-spin"></i>
+                                        <i class="fas fa-spinner fa-spin" v-if="status.fileUploading"></i>
                                     </label>
                                     <input type="file" id="customFile" class="form-control"
                                            ref="files" @change="uploadFile">
@@ -148,7 +149,11 @@
             return {
                 products: [],
                 tempProduct: {},
-                isNew: false
+                isNew: false,
+                isLoading: false,
+                status: {
+                    fileUploading: false
+                }
             }
         },
         methods: {
@@ -156,9 +161,11 @@
                 const api = `${process.env.API_PATH}/api/${process.env.CUSTOM_PATH}/admin/products`
                 const vm = this
                 console.log(process.env.API_PATH, process.env.CUSTOM_PATH)
+                vm.isLoading = true
                 this.$http.get(api).then(response => {
                     console.log(response.data)
                     vm.products = response.data.products
+                    vm.isLoading = false
                 })
             },
             openModal (isNew, item) {
@@ -202,6 +209,7 @@
                 formData.append('file-to-upload', uploadedFile)
 
                 const url = `${process.env.API_PATH}/api/${process.env.CUSTOM_PATH}/admin/upload`
+                vm.status.fileUploading = true
                 this.$http.post(url, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
@@ -209,6 +217,7 @@
                 }).then(response => {
                     if (response.data.success) {
                         vm.$set(vm.tempProduct, 'imageUrl', response.data.imageUrl)
+                        vm.status.fileUploading = false
                     }
                 })
             }
