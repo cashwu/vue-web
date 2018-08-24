@@ -34,6 +34,28 @@
             </tbody>
         </table>
 
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                <li class="page-item" :class="{ 'disabled' : !pagination.has_pre }">
+                    <a class="page-link" href="#" aria-label="Previous"
+                        @click.prevent="getProducts(pagination.current_page - 1)">
+                        <span aria-hidden="true">&laquo;</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item" v-for="page in pagination.total_pages" :key="page" :class="{ 'active' : pagination.current_page === page }" >
+                    <a class="page-link" href="#" @click.prevent="getProducts(page)">{{page}}</a>
+                </li>
+                <li class="page-item" :class="{ 'disabled' : !pagination.has_next }" >
+                    <a class="page-link" href="#" aria-label="Next"
+                    @click.prevent="getProducts(pagination.current_page + 1)">
+                        <span aria-hidden="true">&raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
         <div class="modal fade" id="productModal" tabindex="-1" role="dialog"
              aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
@@ -153,12 +175,13 @@
                 isLoading: false,
                 status: {
                     fileUploading: false
-                }
+                },
+                pagination: {}
             }
         },
         methods: {
-            getProducts () {
-                const api = `${process.env.API_PATH}/api/${process.env.CUSTOM_PATH}/admin/products`
+            getProducts (page = 1) {
+                const api = `${process.env.API_PATH}/api/${process.env.CUSTOM_PATH}/admin/products?page=${page}`
                 const vm = this
                 console.log(process.env.API_PATH, process.env.CUSTOM_PATH)
                 vm.isLoading = true
@@ -166,6 +189,7 @@
                     console.log(response.data)
                     vm.products = response.data.products
                     vm.isLoading = false
+                    vm.pagination = response.data.pagination
                 })
             },
             openModal (isNew, item) {
