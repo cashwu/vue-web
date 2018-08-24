@@ -217,8 +217,10 @@
                 }).then(response => {
                     if (response.data.success) {
                         vm.$set(vm.tempProduct, 'imageUrl', response.data.imageUrl)
-                        vm.status.fileUploading = false
+                    } else {
+                        vm.$bus.$emit('messsage:push', response.data.message, 'danger')
                     }
+                    vm.status.fileUploading = false
                 })
             }
         },
